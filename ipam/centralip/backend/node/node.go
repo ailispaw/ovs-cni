@@ -20,6 +20,7 @@ import (
 	"github.com/coreos/etcd/clientv3"
 	"math/rand"
 	"net"
+	"strings"
 )
 
 type NodeIPM struct {
@@ -189,9 +190,11 @@ func (node *NodeIPM) GetAvailableIP() (string, *net.IPNet, error) {
 	}
 
 	var err error
+	//We will use a prefix bits from node.config.Network for Cluster network.
+	network := strings.Split(node.config.Network, "/")
 	//We need to generate a net.IPnet object which contains the IP and Mask.
 	//We use ParseCIDR to create the net.IPnet object and assign IP back to it.
-	cidr := fmt.Sprintf("%s/%d", availableIP, node.config.SubnetLen)
+	cidr := fmt.Sprintf("%s/%s", availableIP, network[1])
 	var ip net.IP
 	ip, ipnet, err = net.ParseCIDR(cidr)
 	if err != nil {
